@@ -1,4 +1,8 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+} from "firebase/auth";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import React, { useState } from "react";
 import auth from "../../firebase/firebse.config";
@@ -10,10 +14,11 @@ const Register = () => {
   const [types, setType] = useState(false);
   const handleRegister = (e) => {
     e.preventDefault();
+    const name = e.target.name.value;
     const email = e.target.email.value;
     const accepted = e.target.Terms.checked;
     const password = e.target.password.value;
-    console.log(email, password, accepted);
+    console.log(name, email, password, accepted);
     setError("");
     setSucces("");
     if (password.length < 6) {
@@ -33,6 +38,24 @@ const Register = () => {
       .then((result) => {
         console.log(result.user);
         setSucces("user create successfully");
+        // updata profile
+        updateProfile(result.user, {
+          displayName: name,
+        })
+          .then(() => {
+            console.log("profile updated");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        // varification email
+        sendEmailVerification(result.user)
+          .then(() => {
+            console.log("please check email and verified email");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       })
       .catch((error) => {
         console.error(error);
@@ -44,14 +67,23 @@ const Register = () => {
     <div className=" flex flex-col justify-center items-center">
       <h1 className="text-2xl">Please Register here</h1>
       <form onSubmit={handleRegister}>
-        <input
-          className="bg-gray-100 p-1"
-          type="email"
-          name="email"
-          id=""
-          placeholder="Enter your Email here"
-          required
-        />
+        <div className=" flex flex-col">
+          <input
+            className="bg-gray-100 p-1 mb-4"
+            type="text"
+            name="name"
+            id=""
+            placeholder="Enter your name"
+          />
+          <input
+            className="bg-gray-100 p-1"
+            type="email"
+            name="email"
+            id=""
+            placeholder="Enter your Email here"
+            required
+          />
+        </div>
         <br />
         <div className="flex  items-center relative">
           <input
